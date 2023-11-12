@@ -1,2 +1,4 @@
 # add build folder
 /python_build/*
+/r_build/*
+/.vscode/*
