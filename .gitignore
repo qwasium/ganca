@@ -1,4 +1,5 @@
-# add build folder
+# TODO: add build folder
 /python_build/*
-/r_build/*
+/build/*
 /.vscode/*
+/test_data/*

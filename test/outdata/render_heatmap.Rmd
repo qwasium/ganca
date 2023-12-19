@@ -1,0 +1,97 @@
+```{R}
+library("tidyverse")
+library("png")
+
+# clear workspace
+rm(list = ls())
+
+# directories
+if(rstudioapi::isAvailable()==TRUE){
+  script_dir <- dirname(rstudioapi::getActiveDocumentContext()$path)
+} else {
+  script_dir <- getSrcDirectory()[1] # If NOT RStudio
+}
+setwd(script_dir)
+
+```
+
+## define rendering function
+
+plot function for heatmap using ggplot
+
+Parameters
+- heatmap_mat : matrix, win_x*win_y
+- win_x       : numeric, window size x
+- win_y       : numeric, window size y
+- stim_img    : array, background image, default white blank
+- leg_title   : string, legend title of ggplot
+
+return
+- ggplot
+
+```{R}
+ggplot_heatmap <- function(heatmap_mat, win_x, win_y, stim_img = array(1, dim = c(win_y, win_x, 3)), draw_contour = TRUE, leg_title = ""){
+
+  col_size <- dim(heatmap_mat)[2]
+  colnames(heatmap_mat) <- c(1:col_size)
+
+  # convert from short to long data
+  heatmap_mat_long <- heatmap_mat %>%
+    as.data.frame() %>%
+    mutate(X = row_number()) %>%
+    pivot_longer(
+      cols      = !("X"),
+      names_to  = "Y",
+      values_to = "heat"
+    )
+
+  heatmap_mat_long$Y = as.numeric(heatmap_mat_long$Y)
+
+  # plot heatmap
+  heatmap_plot <- ggplot(heatmap_mat_long, aes(x = X, y = Y)) +
+    annotation_custom(grid::rasterGrob(stim_img, width = unit(1, "npc"), height = unit(1, "npc")), 0, win_x, 0, -win_y) + # stim image as back ground
+    scale_x_continuous(expand = c(0, 0), limits = c(0, win_x)) +
+    scale_y_reverse(expand = c(0, 0), limits = c(win_y, 0)) +
+    coord_equal() +
+    geom_raster(aes(fill = heat, alpha = heat)) +  # heatmap overlay
+    scale_fill_continuous(type = "viridis") +      # heatmap color
+    scale_alpha(range = c(0.5, 1)) +               # heatmap opacity
+    guides(alpha = "none") +                       # omit unneccesary legend
+    guides(fill = guide_colorbar(title=leg_title)) # legend title
+
+  # Add contour lines
+  if (draw_contour == TRUE){
+    heatmap_plot <- heatmap_plot + geom_contour(aes(z = heat), color = "white", linetype = "solid")
+  }
+
+  return(heatmap_plot)
+}
+
+```
+
+## Load data
+
+```{R}
+csv_path <- "heatmap.csv"
+heatmap_mat <- read.csv(csv_path, header = FALSE)
+
+```
+
+## Plot heatmap
+
+```{R}
+win_x <- 1920
+win_y <- 1080
+stim_img <- readPNG("../../test_data/bgimg.png")
+
+heatmap_plot <- ggplot_heatmap(heatmap_mat, win_x, win_y, leg_title = "Heatmap")
+heatmap_plot
+```
+
+## export heatmap
+
+```{r}
+fpath <- "heatmap.png"
+ggsave(fpath, width = win_x, height = win_y, units = "px")
+```
+
