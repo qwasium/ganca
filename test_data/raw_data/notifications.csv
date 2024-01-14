@@ -1,0 +1,4 @@
+systemTimeStamp,notification,explanation,value
+1435664004,TOBII_RESEARCH_NOTIFICATION_CALIBRATION_MODE_ENTERED,Indicates that the calibration mode is entered,
+1435664100,TOBII_RESEARCH_NOTIFICATION_CALIBRATION_CHANGED,Indicates that the calibration is changed,
+1472767767,TOBII_RESEARCH_NOTIFICATION_CALIBRATION_MODE_LEFT,Indicates that the calibration mode is left,

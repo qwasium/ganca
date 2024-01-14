@@ -1,0 +1,5 @@
+type,machineSerialNumber,systemTimeStamp,source,levelOrError,message
+log message,,1357334160,TOBII_RESEARCH_LOG_SOURCE_SDK,TOBII_RESEARCH_LOG_LEVEL_INFORMATION,Zero configuration browser found and connected to tet-tcp://169.254.3.242 (TPSP1-010200725094)
+log message,,0,TOBII_RESEARCH_LOG_SOURCE_SDK,TOBII_RESEARCH_LOG_LEVEL_INFORMATION,Using C SDK version: 1.9.0.66
+log message,,1359986265,TOBII_RESEARCH_LOG_SOURCE_STREAM_ENGINE,TOBII_RESEARCH_LOG_LEVEL_ERROR,internal.cpp(641): error "TOBII_ERROR_CALIBRATION_NOT_STARTED" (0000000a) in function "tobii_command"
+log message,,1359986272,TOBII_RESEARCH_LOG_SOURCE_STREAM_ENGINE,TOBII_RESEARCH_LOG_LEVEL_ERROR,tobii_config.cpp(68): error "TOBII_ERROR_CALIBRATION_NOT_STARTED" (0000000a) in function "tobii_calibration_stop"

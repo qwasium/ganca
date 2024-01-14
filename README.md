@@ -34,7 +34,6 @@ Beta version and later versions will be released on PyPI and CRAN.
 The following features are considered to be implemented in the beta version.
 
 - Heatmap using particle filter
-- Heatmap using Gaussian Process
 - parallel processing
 
 
@@ -44,4 +43,10 @@ I'm not planning to release a built version for MATLAB.
 
 Users will need to build the package by themselves.
 
-I won't have a MATLAB license from April 2024, so I can't support it.
+My MATLAB license will expire in March 2024, so I can't support it.
+
+## Dependencies
+
+The following dependencies are required to build the package.
+
+- OpenCV 4.8.1: If cmake cannot find it, please set the path to OpenCV in CMakeLists.txt.

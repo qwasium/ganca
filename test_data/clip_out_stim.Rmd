@@ -1,0 +1,54 @@
+initialize
+```{r}
+library("tidyverse")
+
+# clear workspace
+rm(list = ls())
+
+# directories
+if(rstudioapi::isAvailable()==TRUE){
+  script_dir <- dirname(rstudioapi::getActiveDocumentContext()$path)
+} else {
+  script_dir <- getSrcDirectory()[1] # If NOT RStudio
+}
+setwd(script_dir)
+setwd("raw_data")
+data_dir <- getwd()
+setwd(script_dir)
+```
+
+## timeSeries
+
+```{r}
+setwd(data_dir)
+time_series <- read_csv("timeSeries.csv") %>% as_tibble()
+```
+```{r}
+aka_tbl <- time_series %>% filter(prior_message == "STIM ON: aka.jpg")
+midori_tbl <- time_series %>% filter(prior_message == "STIM ON: midori.jpg")
+```
+
+```{r}
+setwd(script_dir)
+write_csv(aka_tbl, "aka_timeseries.csv")
+write_csv(midori_tbl, "midori_timeseries.csv")
+```
+
+## fixation
+
+```{r}
+setwd(data_dir)
+fixation <- read.delim("allfixations.txt") %>% as_tibble()
+```
+
+```{r}
+aka_fix <- fixation %>% filter(Trial=="t_14_R001")
+midori_fix <- fixation %>% filter(Trial=="t_14_R002")
+```
+
+```{r}
+setwd(script_dir)
+write_csv(aka_fix, "aka_fixation.csv")
+write_csv(midori_fix, "midori_fixation.csv")
+```
+
