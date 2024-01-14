@@ -1,5 +1,5 @@
-# include "include/csv-parser/csv.hpp"
-# include "../gazePath/gazePath.hpp"
+# include <gazePath.hpp> // src
+# include <csv.hpp> // git submodule csv-parser
 
 # include <iostream>
 # include <vector>

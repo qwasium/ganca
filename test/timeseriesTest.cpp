@@ -1,5 +1,4 @@
-// https://github.com/vincentlaucsb/csv-parser
-# include "include/csv-parser/csv.hpp"
+# include <csv.hpp> // git submodule csv-parser
 
 # include <iostream>
 # include <vector>

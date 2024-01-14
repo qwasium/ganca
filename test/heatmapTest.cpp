@@ -1,5 +1,5 @@
-# include "../heatmap/heatmap.hpp"
-# include "include/csv-parser/csv.hpp"
+# include <heatmap.hpp>
+# include <csv.hpp> // git submodule csv-parser
 
 # include <iostream>
 # include <vector>
