@@ -5,6 +5,7 @@
 # include <vector>
 # include <cmath>
 
+// swig will ignore const, check docs 5.2.4
 std::vector<std::vector<double>> heatmapGauss(const std::vector<double>& fixX,
                                             const std::vector<double>& fixY,
                                             const std::vector<double>& fixDuration,

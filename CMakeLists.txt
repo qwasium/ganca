@@ -1,12 +1,12 @@
+# TODO: multi config generator build
+
 # developed on cmake 3.22.1 on Ubuntu 22.04/x86_64
 # minimum_required is set without testing; pls report bug if it fails.
 cmake_minimum_required(VERSION 3.21)
 
 project(ganca VERSION 0.1 LANGUAGES CXX)
 
-# CMP0122: Starting with CMake 3.21,
-# UseSWIG generates now a library using default naming conventions.
-# https://cmake.org/cmake/help/latest/policy/CMP0122.html
+# CMP0122: https://cmake.org/cmake/help/latest/policy/CMP0122.html
 if (POLICY CMP0122)
   cmake_policy(SET CMP0122 NEW)
 endif()
@@ -16,6 +16,8 @@ endif()
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
+
+include(GNUInstallDirs)
 
 # print build info
 message("#######################################")
@@ -27,11 +29,6 @@ message("build arch    : ${CMAKE_SYSTEM_PROCESSOR}")
 message("build flags   : ${CMAKE_CXX_FLAGS}")
 message("c++ version   : ${CMAKE_CXX_STANDARD}")
 message("#######################################")
-
-# build dir
-set(CMAKE_BINARY_DIR ${PROJECT_SOURCE_DIR}/build)
-set(PROJECT_BINARY_DIR ${PROJECT_SOURCE_DIR}/build)
-
 
 # openCV ---------------------------------------------------------------
 # https://github.com/opencv/opencv/blob/4.x/samples/cpp/example_cmake/CMakeLists.txt
@@ -48,7 +45,9 @@ message(STATUS "    include path: ${OpenCV_INCLUDE_DIRS}")
 # openCV end ------------------------------------------------------------
 
 # SWIG -----------------------------------------------------------------
-find_package(SWIG REQUIRED)
+find_package(SWIG 4.0
+            COMPONENTS python
+            REQUIRED)
 include(${SWIG_USE_FILE})
 set(CMAKE_SWIG_FLAGS "") # option for swig command
 
@@ -81,6 +80,8 @@ if(GIT_FOUND AND EXISTS "${PROJECT_SOURCE_DIR}/.git")
                     RESULT_VARIABLE GIT_SUBMOD_RESULT)
     if(NOT GIT_SUBMOD_RESULT EQUAL "0")
       message(FATAL_ERROR "git submodule update --init failed with ${GIT_SUBMOD_RESULT}, please checkout submodules")
+    elseif(GIT_SUBMOD_RESULT EQUAL "1")
+      message(STATUS "Submodule update done")
     endif()
   endif()
 endif()
@@ -97,11 +98,14 @@ include_directories(${PROJECT_SOURCE_DIR}/src)
 # include directories end ----------------------------------------------
 
 
-# add_subdirectory(src)
+add_subdirectory(src)
 add_subdirectory(test)
 
+# copy test data
+file(COPY ${PROJECT_SOURCE_DIR}/test_data DESTINATION ${PROJECT_BINARY_DIR})
 
-
+# copy python test script
+file(COPY ${PROJECT_SOURCE_DIR}/python_test DESTINATION ${PROJECT_BINARY_DIR})
 
 # debug
 message("dir from root")

@@ -1,12 +1,13 @@
 %module helpers
 
-%{
-#include "helpers.h"
-%}
+// Add necessary symbols to generated header
+// %{
+// #include "helpers.hpp"
+// %}
 
-// %include stl.i
 %include "std_vector.i"
+%template(DoubleVector) std::vector<double>;
+std::vector<double> displayAreaToPixels(std::vector<double> coordsAbs, int resolution);
 
-%template(VectorDouble) std::vector<double>;
-
-%include "helpers.h"
+// Process symbols in header
+// %include "helpers.hpp"

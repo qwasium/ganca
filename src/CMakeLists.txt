@@ -1,18 +1,27 @@
+include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 
+# Python ---------------------------------------------------------------
+# set(CMAKE_CURRENT_BINARY_DIR ${PROJECT_BINARY_DIR}/python)
 
-# INCLUDE_DIRECTORIES(${CMAKE_CURRENT_SOURCE_DIR})
+# example
+set_source_files_properties(example.i PROPERTIES CPLUSPLUS ON)
+set_source_files_properties(example.i PROPERTIES SWIG_FLAGS "-includeall")
 
+swig_add_library(example
+		LANGUAGE python
+		# OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/python
+		SOURCES example.i example.cpp)
+target_link_libraries(example ${PYTHON_LIBRARIES})
 
-# SET_SOURCE_FILES_PROPERTIES(example.i PROPERTIES CPLUSPLUS ON)
-# SET_SOURCE_FILES_PROPERTIES(example.i PROPERTIES SWIG_FLAGS "-includeall")
+# helpers
+set_source_files_properties(helpers.i PROPERTIES CPLUSPLUS ON)
+set_source_files_properties(helpers.i PROPERTIES SWIG_FLAGS "-includeall")
 
-# # python
-# SWIG_ADD_LIBRARY(example LANGUAGE python SOURCES example.i example.cpp)
-# SWIG_LINK_LIBRARIES(example ${PYTHON_LIBRARIES})
+swig_add_library(helpers
+		LANGUAGE python
+		SOURCES helpers.i helpers.cpp)
+target_link_libraries(helpers ${PYTHON_LIBRARIES})
 
-# SET_SOURCE_FILES_PROPERTIES(helpers.i PROPERTIES CPLUSPLUS ON)
-# SET_SOURCE_FILES_PROPERTIES(helpers.i PROPERTIES SWIG_FLAGS "-includeall")
+set_property(TARGET helpers PROPERTY SWIG_USE_TARGET_INCLUDE_DIRECTORIES ON)
 
-# # python
-# SWIG_ADD_LIBRARY(helpers LANGUAGE python SOURCES helpers.i helpers.h)
-# SWIG_LINK_LIBRARIES(helpers ${PYTHON_LIBRARIES})
+# Python end ---------------------------------------------------------------

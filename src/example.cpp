@@ -1,6 +1,6 @@
 /* File : example.cpp */
 
-#include "example.h"
+#include <example.h>
 #define M_PI 3.14159265358979323846
 
 /* Move the shape to a new location */

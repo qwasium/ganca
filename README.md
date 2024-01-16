@@ -14,6 +14,8 @@ No pull requests will be accepted until the beta version is released.
 
 ganca is a simple and fast eye-tracking data analysis tool.
 
+The aim is to create a cross-platform, fast low-level library for eye-tracking data analysis targeting Python and R, and MATLAB if possible.
+
 ## When is it coming?
 
 Alpha version is planned to be released in Jan. 2024, but can be delayed.
@@ -47,6 +49,17 @@ My MATLAB license will expire in March 2024, so I can't support it.
 
 ## Dependencies
 
-The following dependencies are required to build the package.
+The following dependencies are required to build the package. If CMake can't find them, you might need to provide the path in `CMakeLists.txt`.
 
-- OpenCV 4.8.1: If cmake cannot find it, please set the path to OpenCV in CMakeLists.txt.
+- SWIG 4.0.2
+- OpenCV 4.8.1
+
+## How to build
+
+As in any CMake projects.
+
+```bash
+mkdir build # create build directory
+cmake -S. -Bbuild # from repo root directory
+cmake --build build
+```
