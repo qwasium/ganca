@@ -1,4 +1,4 @@
-# include <heatmap.hpp> // ../src
+# include <heatmap.hpp> // ../src/heatmap
 # include <csv.hpp>     // git submodule csv-parser
 
 # include <iostream>

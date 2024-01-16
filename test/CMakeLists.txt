@@ -1,5 +1,7 @@
 set(CMAKE_CURRENT_BINARY_DIR ${PROJECT_BINARY_DIR}/test)
 
+include_directories(${PROJECT_SOURCE_DIR}/src/heatmap)
+
 # heatmap
 add_executable(heatmapTest ${CMAKE_CURRENT_SOURCE_DIR}/heatmapTest.cpp)
 
@@ -11,3 +13,6 @@ message("dir from test")
 # message("cmake bin dir   : ${CMAKE_BINARY_DIR}")
 message("cur src dir     : ${CMAKE_CURRENT_SOURCE_DIR}")
 message("cur bin dir     : ${CMAKE_CURRENT_BINARY_DIR}")
+
+# copy outdata script
+file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/outdata DESTINATION ${CMAKE_CURRENT_BINARY_DIR})

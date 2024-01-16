@@ -5,7 +5,7 @@
 
 import os
 from add_path import AddPath
-lib_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'src')
+lib_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'src', 'example')
 with AddPath(lib_path):
     import example
 
