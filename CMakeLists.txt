@@ -1,23 +1,28 @@
-# TODO: multi config generator build
-
 # developed on cmake 3.22.1 on Ubuntu 22.04/x86_64
 # minimum_required is set without testing; pls report bug if it fails.
 cmake_minimum_required(VERSION 3.21)
-
-project(ganca VERSION 0.1 LANGUAGES CXX)
 
 # CMP0122: https://cmake.org/cmake/help/latest/policy/CMP0122.html
 if (POLICY CMP0122)
   cmake_policy(SET CMP0122 NEW)
 endif()
 
+project(ganca VERSION 0.1 LANGUAGES CXX)
+set(PROJECT_NAMESPACE ganca) # user defined
+# set(PROJECT_NAMESPACE cs)
+
 # temporarily set to C++ 17
 # might change in future development
+enable_language(CXX)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
-include(GNUInstallDirs)
+# add cmake scripts
+list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
+
+# export compile_commands.json
+option(CMAKE_EXPORT_COMPILE_COMMANDS "Export compile command" TRUE)
 
 # print build info
 message("#######################################")
@@ -30,88 +35,110 @@ message("build flags   : ${CMAKE_CXX_FLAGS}")
 message("c++ version   : ${CMAKE_CXX_STANDARD}")
 message("#######################################")
 
-# openCV ---------------------------------------------------------------
-# https://github.com/opencv/opencv/blob/4.x/samples/cpp/example_cmake/CMakeLists.txt
-# Find OpenCV, you may need to set OpenCV_DIR variable
-# to the absolute path to the directory containing OpenCVConfig.cmake file
-# via the command line or GUI
-find_package(OpenCV REQUIRED)
+# multi-config generator ------------------------------------------------
+get_property(isMultiConfig GLOBAL PROPERTY GENERATOR_IS_MULTI_CONFIG)
+if(isMultiConfig)
+  if(NOT CMAKE_CONFIGURATION_TYPES) # Specifies the available build types (configurations) on multi-config generators (e.g. Visual Studio, Xcode, or Ninja Multi-Config) as a semicolon-separated list.
+    set(CMAKE_CONFIGURATION_TYPES "Release;Debug" CACHE STRING
+    "Choose the type of builds, options are: Debug Release RelWithDebInfo MinSizeRel. (default: Release;Debug)"
+    FORCE)
+  endif()
+  message(STATUS "Configuration types: ${CMAKE_CONFIGURATION_TYPES}")
+else()
+  if(NOT CMAKE_BUILD_TYPE) # Specifies the build type on single-configuration generators (e.g. Makefile Generators or Ninja).
+    set(CMAKE_BUILD_TYPE "Release" CACHE STRING
+    "Choose the type of build, options are: Debug Release RelWithDebInfo MinSizeRel. (default: Release)"
+    FORCE)
+  endif()
+  message(STATUS "Build type: ${CMAKE_BUILD_TYPE}")
+endif()
+# multi-config generator end --------------------------------------------
 
-message(STATUS "OpenCV library status:")
-message(STATUS "    config:       ${OpenCV_DIR}")
-message(STATUS "    version:      ${OpenCV_VERSION}")
-message(STATUS "    libraries:    ${OpenCV_LIBS}")
-message(STATUS "    include path: ${OpenCV_INCLUDE_DIRS}")
-# openCV end ------------------------------------------------------------
+# Layout build dir like install dir -------------------------------------
+include(GNUInstallDirs)
+if(UNIX)
+  option(BUILD_SHARED_LIBS "Build shared libraries (.so or .dyld)." ON) # Global flag to cause add_library() to create shared libraries if on.
+  set(CMAKE_BUILD_WITH_INSTALL_RPATH TRUE)                              # Use the install path for the RPATH (Run-time Path)
+  set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${CMAKE_INSTALL_LIBDIR})
+  set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${CMAKE_INSTALL_LIBDIR})
+  set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${CMAKE_INSTALL_BINDIR})
+  # for multi-config build system (e.g. Xcode, Ninja Multi-Config)      # empty on single-config generator
+  foreach(OutputConfig IN LISTS CMAKE_CONFIGURATION_TYPES)
+    string(TOUPPER ${OutputConfig} OUTPUTCONFIG)
+    set(CMAKE_LIBRARY_OUTPUT_DIRECTORY_${OUTPUTCONFIG} ${CMAKE_BINARY_DIR}/${OutputConfig}/${CMAKE_INSTALL_LIBDIR})
+    set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY_${OUTPUTCONFIG} ${CMAKE_BINARY_DIR}/${OutputConfig}/${CMAKE_INSTALL_LIBDIR})
+    set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_${OUTPUTCONFIG} ${CMAKE_BINARY_DIR}/${OutputConfig}/${CMAKE_INSTALL_BINDIR})
+  endforeach()
+else()
+  # Currently Only support static build for windows
+  option(BUILD_SHARED_LIBS "Build shared libraries (.dll)." OFF)
+  set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${CMAKE_INSTALL_BINDIR})
+  set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${CMAKE_INSTALL_BINDIR})
+  set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${CMAKE_INSTALL_BINDIR})
+  # for multi-config builds (e.g. msvc)
+  foreach(OutputConfig IN LISTS CMAKE_CONFIGURATION_TYPES)
+    string(TOUPPER ${OutputConfig} OUTPUTCONFIG)
+    set(CMAKE_LIBRARY_OUTPUT_DIRECTORY_${OUTPUTCONFIG} ${CMAKE_BINARY_DIR}/${OutputConfig}/${CMAKE_INSTALL_BINDIR})
+    set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY_${OUTPUTCONFIG} ${CMAKE_BINARY_DIR}/${OutputConfig}/${CMAKE_INSTALL_BINDIR})
+    set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_${OUTPUTCONFIG} ${CMAKE_BINARY_DIR}/${OutputConfig}/${CMAKE_INSTALL_BINDIR})
+  endforeach()
+endif()
+# Layout build dir like install dir end ---------------------------------
 
-# SWIG -----------------------------------------------------------------
-find_package(SWIG 4.0
-            COMPONENTS python
-            REQUIRED)
-include(${SWIG_USE_FILE})
-set(CMAKE_SWIG_FLAGS "") # option for swig command
+# build target language selection ---------------------------------------
+# build C++ library?
+option(BUILD_CXX "Build C++ library" ON)
+message(STATUS "Build C++ library: ${BUILD_CXX}")
 
-message(STATUS "SWIG:")
-message(STATUS "    executable: ${SWIG_EXECUTABLE}")
-message(STATUS "    version:    ${SWIG_VERSION}")
-message(STATUS "    use file:   ${SWIG_USE_FILE}")
-message(STATUS "    flags:      ${CMAKE_SWIG_FLAGS}")
-# SWIG end -------------------------------------------------------------
+# build Python library?
+option(BUILD_PYTHON "Build Python Library" OFF)
+message(STATUS "Build Python: ${BUILD_PYTHON}")
 
-# Python ---------------------------------------------------------------
-find_package(PythonLibs)
-include_directories(${PYTHON_INCLUDE_PATH})
+# build R library?
+option(BUILD_R "Build R Library" OFF)
+message(STATUS "Build R: ${BUILD_R}")
+# build target language selection end -----------------------------------
 
-message(STATUS "Python:")
-message(STATUS "    include:    ${PYTHON_INCLUDE_PATH}")
-message(STATUS "    libraries:  ${PYTHON_LIBRARIES}")
-# Python end -----------------------------------------------------------
+# Disable CTest targets
+set_property(GLOBAL PROPERTY CTEST_TARGETS_ADDED 1)
+include(CTest)
 
-# csv-parser -----------------------------------------------------------
+# git
 find_package(Git REQUIRED)
 
-# update submodules
-if(GIT_FOUND AND EXISTS "${PROJECT_SOURCE_DIR}/.git")
-  option(CHK_SUBMODULE "Check submodules during build" ON) # check submodule: toggle on/off
-  if(CHK_SUBMODULE)
-    message(STATUS "Submodule update")
-    execute_process(COMMAND ${GIT_EXECUTABLE} submodule update --init --recursive
-                    WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
-                    RESULT_VARIABLE GIT_SUBMOD_RESULT)
-    if(NOT GIT_SUBMOD_RESULT EQUAL "0")
-      message(FATAL_ERROR "git submodule update --init failed with ${GIT_SUBMOD_RESULT}, please checkout submodules")
-    elseif(GIT_SUBMOD_RESULT EQUAL "1")
-      message(STATUS "Submodule update done")
-    endif()
-  endif()
+# openCV(local install)
+include(opencv) # /cmake/opencv.cmake
+
+# csv-parser(git submodule)
+include(csvparser) # /cmake/csvparser.cmake
+
+# build C++ library
+include(cpp) # /cmake/cpp.cmake
+
+# SWIG for Windows
+if(WIN32 AND (BUILD_R OR BUILD_PYTHON))
+  include(swig) # /cmake/swig.cmake
 endif()
 
-if(NOT EXISTS "${PROJECT_SOURCE_DIR}/extern/csv-parser/CMakeLists.txt")
-  message(FATAL_ERROR "The submodules were not downloaded! CHK_SUBMODULE was turned off or failed. Please update submodules and try again.")
+# build Python library
+if(BUILD_PYTHON)
+  option(FETCH_PYTHON_DEPS "Install python required modules if not available" ON)
+  message(STATUS "Python fetch dependencies: ${FETCH_PYTHON_DEPS}")
 endif()
-
-include_directories(${PROJECT_SOURCE_DIR}/extern/csv-parser/single_include)
-# csv-parser end -------------------------------------------------------
-
-# include directories --------------------------------------------------
-include_directories(${PROJECT_SOURCE_DIR}/src)
-# include directories end ----------------------------------------------
-
-
-add_subdirectory(src)
-add_subdirectory(test)
+include(python)
 
 # copy test data
 file(COPY ${PROJECT_SOURCE_DIR}/test_data DESTINATION ${PROJECT_BINARY_DIR})
 
-# copy python test script
-file(COPY ${PROJECT_SOURCE_DIR}/python_test DESTINATION ${PROJECT_BINARY_DIR})
-
-# debug
-message("dir from root")
-message("project src dir : ${PROJECT_SOURCE_DIR}")
-message("project bin dir : ${PROJECT_BINARY_DIR}")
-message("cmake src dir   : ${CMAKE_SOURCE_DIR}")
-message("cmake bin dir   : ${CMAKE_BINARY_DIR}")
-message("cur src dir     : ${CMAKE_CURRENT_SOURCE_DIR}")
-message("cur bin dir     : ${CMAKE_CURRENT_BINARY_DIR}")
+# # debug
+# message("dir from root")
+# message("project src dir : ${PROJECT_SOURCE_DIR}")
+# message("project bin dir : ${PROJECT_BINARY_DIR}")
+# message("cmake src dir   : ${CMAKE_SOURCE_DIR}")
+# message("cmake bin dir   : ${CMAKE_BINARY_DIR}")
+# message("cur src dir     : ${CMAKE_CURRENT_SOURCE_DIR}")
+# message("cur bin dir     : ${CMAKE_CURRENT_BINARY_DIR}")
+# message("cmake lib output dir : ${CMAKE_LIBRARY_OUTPUT_DIRECTORY}")
+# message("cmake arc output dir : ${CMAKE_ARCHIVE_OUTPUT_DIRECTORY}")
+# message("cmake run output dir : ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}")
+# # message("build types     : ${CMAKE_CONFIGURATION_TYPES}") # empty on single-config generator

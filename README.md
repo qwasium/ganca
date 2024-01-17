@@ -51,15 +51,35 @@ My MATLAB license will expire in March 2024, so I can't support it.
 
 The following dependencies are required to build the package. If CMake can't find them, you might need to provide the path in `CMakeLists.txt`.
 
+The versions shown below are of the tested environment. Tested on Ubuntu 22.04 only.
+
+- CMake 3.22.1
 - SWIG 4.0.2
-- OpenCV 4.8.1
+- Python 3.10.
+- OpenCV 4.8.1: [you might need to edit cmake script if build fails](/cmake/opencv.cmake)
 
 ## How to build
 
-As in any CMake projects.
+As in any CMake projects, run the following commands from the root directory of this repository. Change the build directory (/build) as you like.
 
 ```bash
-mkdir build # create build directory
-cmake -S. -Bbuild # from repo root directory
+cmake -S. -Bbuild
 cmake --build build
 ```
+
+For building the Python package, run the following commands or toggle `BUILD_PYTHON` option in /CMakeLists.txt.
+
+The target `python_package` is defined in /cmake/python.cmake.
+
+```bash
+cmake -S. -Bbuild -DBUILD_PYTHON=ON
+cmake --build build --target python_package -v
+```
+
+## Codemap
+
+
+
+## Acknowledgement
+
+This repository is based on [https://github.com/Mizux/cmake-swig](https://github.com/Mizux/cmake-swig).
