@@ -1,4 +1,4 @@
-# include "heatmap/heatmap.hpp"
+# include "heatmap/Heatmap.hpp"
 
 # include <string>
 # include <vector>

@@ -80,7 +80,7 @@ function(add_cpp_test FILE_NAME)
   target_link_libraries(${TEST_NAME} PRIVATE
     Catch2 Catch2WithMain
     ${PROJECT_NAMESPACE}::Foo
-    ${PROJECT_NAMESPACE}::heatmap
+    ${PROJECT_NAMESPACE}::Heatmap
     # ${PROJECT_NAMESPACE}::FooBar
 	)
 
@@ -92,7 +92,7 @@ endfunction()
 
 # go thruogh source directories
 add_subdirectory(Foo)
-add_subdirectory(heatMap)
+add_subdirectory(Heatmap)
 
 # Install
 install(EXPORT ${PROJECT_NAME}Targets

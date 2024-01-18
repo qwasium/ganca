@@ -66,7 +66,8 @@ if(UNIX)
   set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${CMAKE_INSTALL_LIBDIR})
   set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${CMAKE_INSTALL_LIBDIR})
   set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${CMAKE_INSTALL_BINDIR})
-  # for multi-config build system (e.g. Xcode, Ninja Multi-Config)      # empty on single-config generator
+  # for multi-config build system (e.g. Xcode, Ninja Multi-Config)
+  # CMAKE_CONFIGURATION_TYPES is empty on single-config generator
   foreach(OutputConfig IN LISTS CMAKE_CONFIGURATION_TYPES)
     string(TOUPPER ${OutputConfig} OUTPUTCONFIG)
     set(CMAKE_LIBRARY_OUTPUT_DIRECTORY_${OUTPUTCONFIG} ${CMAKE_BINARY_DIR}/${OutputConfig}/${CMAKE_INSTALL_LIBDIR})

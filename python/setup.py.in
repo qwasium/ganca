@@ -25,6 +25,7 @@ setup(
   package_data={
   '@PYTHON_PROJECT@':[$<$<NOT:$<PLATFORM_ID:Windows>>:'.libs/*'>],
   '@PYTHON_PROJECT@.foo':['$<TARGET_FILE_NAME:pyFoo>'],
+  '@PYTHON_PROJECT@.heatmap':['$<TARGET_FILE_NAME:pyHeatmap>']
   },
   include_package_data=True,
   classifiers=[
