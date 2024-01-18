@@ -58,7 +58,11 @@ endif()
 include(GNUInstallDirs)
 if(UNIX)
   option(BUILD_SHARED_LIBS "Build shared libraries (.so or .dyld)." ON) # Global flag to cause add_library() to create shared libraries if on.
-  set(CMAKE_BUILD_WITH_INSTALL_RPATH TRUE)                              # Use the install path for the RPATH (Run-time Path)
+  # Use the install path for the RPATH (Run-time Path).
+  # Since we want to use the CMAKE_BINARY_DIR to generate the wrapper package (e.g. python wheel package)...
+  # ...as well as be able to test from the build directory.
+  # We need to enable CMAKE_BUILD_WITH_INSTALL_RPATH to TRUE and have a finely-tuned RPATH for each library.
+  set(CMAKE_BUILD_WITH_INSTALL_RPATH TRUE)
   set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${CMAKE_INSTALL_LIBDIR})
   set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${CMAKE_INSTALL_LIBDIR})
   set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${CMAKE_INSTALL_BINDIR})

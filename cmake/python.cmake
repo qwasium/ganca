@@ -2,17 +2,10 @@ if(NOT BUILD_PYTHON)
   return()
 endif()
 
-# # Use latest UseSWIG module (3.14) and Python3 module (3.18)
-# cmake_minimum_required(VERSION 3.18)
-
 # Will need swig
 set(CMAKE_SWIG_FLAGS)
 find_package(SWIG REQUIRED)
 include(UseSWIG)
-
-# if(${SWIG_VERSION} VERSION_GREATER_EQUAL 4)
-#   list(APPEND CMAKE_SWIG_FLAGS "-doxygen") # SWIG 4.0 Doxygen only supports Python and Java
-# endif()
 
 if(UNIX AND NOT APPLE)
   list(APPEND CMAKE_SWIG_FLAGS "-DSWIGWORDSIZE64")
@@ -228,43 +221,7 @@ if(BUILD_TESTING)
     VERBATIM)
 endif()
 
-# # add_python_test()
-# # CMake function to generate and build python test.
-# # Parameters:
-# #  the python filename
-# # e.g.:
-# # add_python_test(foo.py)
-# function(add_python_test FILE_NAME)
-#   message(STATUS "Configuring test ${FILE_NAME} ...")
-#   get_filename_component(EXAMPLE_NAME ${FILE_NAME} NAME_WE)
-
-#   if(BUILD_TESTING)
-#     add_test(
-#       NAME python_test_${EXAMPLE_NAME}
-#       COMMAND ${VENV_Python3_EXECUTABLE} ${FILE_NAME}
-#       WORKING_DIRECTORY ${VENV_DIR})
-#   endif()
-#   message(STATUS "Configuring test ${FILE_NAME} done")
-# endfunction()
-
-# # add_python_example()
-# # CMake function to generate and build python example.
-# # Parameters:
-# #  the python filename
-# # e.g.:
-# # add_python_example(foo.py)
-# function(add_python_example FILE_NAME)
-#   message(STATUS "Configuring example ${FILE_NAME} ...")
-#   get_filename_component(EXAMPLE_NAME ${FILE_NAME} NAME_WE)
-
-#   if(BUILD_TESTING)
-#     add_test(
-#       NAME python_example_${EXAMPLE_NAME}
-#       COMMAND ${VENV_Python3_EXECUTABLE} ${FILE_NAME}
-#       WORKING_DIRECTORY ${VENV_DIR})
-#   endif()
-#   message(STATUS "Configuring example ${FILE_NAME} done")
-# endfunction()
-
 # copy python test script
 file(COPY ${PROJECT_SOURCE_DIR}/python_test DESTINATION ${PROJECT_BINARY_DIR}/python)
+
+# python test end -----------------------------------------------------------------------------------------
