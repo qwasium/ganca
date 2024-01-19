@@ -81,6 +81,7 @@ function(add_cpp_test FILE_NAME)
     Catch2 Catch2WithMain
     ${PROJECT_NAMESPACE}::Foo
     ${PROJECT_NAMESPACE}::Heatmap
+    ${PROJECT_NAMESPACE}::Helper
     # ${PROJECT_NAMESPACE}::FooBar
 	)
 
@@ -93,6 +94,7 @@ endfunction()
 # go thruogh source directories
 add_subdirectory(Foo)
 add_subdirectory(Heatmap)
+add_subdirectory(Helper)
 
 # Install
 install(EXPORT ${PROJECT_NAME}Targets
