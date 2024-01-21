@@ -5,6 +5,10 @@
 # reference:
 # https://stackoverflow.com/questions/17211078/how-to-temporarily-modify-sys-path-in-python
 #
+# import as:
+# ```python
+# from add_path import AddPath, JumpDir
+# ```
 
 import sys
 import os

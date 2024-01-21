@@ -82,6 +82,7 @@ function(add_cpp_test FILE_NAME)
     ${PROJECT_NAMESPACE}::Foo
     ${PROJECT_NAMESPACE}::Heatmap
     ${PROJECT_NAMESPACE}::Helper
+    ${PROJECT_NAMESPACE}::AOIHit
     # ${PROJECT_NAMESPACE}::FooBar
 	)
 
@@ -95,6 +96,7 @@ endfunction()
 add_subdirectory(Foo)
 add_subdirectory(Heatmap)
 add_subdirectory(Helper)
+add_subdirectory(AOIHit)
 
 # Install
 install(EXPORT ${PROJECT_NAME}Targets

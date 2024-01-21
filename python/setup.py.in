@@ -27,6 +27,7 @@ setup(
   '@PYTHON_PROJECT@.foo':['$<TARGET_FILE_NAME:pyFoo>'],
   '@PYTHON_PROJECT@.heatmap':['$<TARGET_FILE_NAME:pyHeatmap>'],
   '@PYTHON_PROJECT@.helper':['$<TARGET_FILE_NAME:pyHelper>'],
+  '@PYTHON_PROJECT@.aoihit':['$<TARGET_FILE_NAME:pyAOIHit>'],
   },
   include_package_data=True,
   classifiers=[
