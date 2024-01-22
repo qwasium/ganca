@@ -105,7 +105,7 @@ set(PYTHON_PROJECT_DIR ${PROJECT_BINARY_DIR}/python/${PYTHON_PROJECT}) # build/p
 message(STATUS "Python project build path: ${PYTHON_PROJECT_DIR}")
 
 # Swig wrap all libraries
-foreach(SUBPROJECT IN ITEMS Foo Heatmap Helper AOIHit)# Bar FooBar)
+foreach(SUBPROJECT IN ITEMS Heatmap Helper AOIHit FixationFilter)
   add_subdirectory(${SUBPROJECT}/python)
 endforeach()
 
@@ -114,12 +114,10 @@ endforeach()
 #######################
 #file(MAKE_DIRECTORY python/${PYTHON_PROJECT})
 file(GENERATE OUTPUT ${PYTHON_PROJECT_DIR}/__init__.py CONTENT "__version__ = \"${PROJECT_VERSION}\"\n")
-file(GENERATE OUTPUT ${PYTHON_PROJECT_DIR}/foo/__init__.py CONTENT "")     # build/python/ganca/foo/__init__.py
 file(GENERATE OUTPUT ${PYTHON_PROJECT_DIR}/heatmap/__init__.py CONTENT "") # build/python/ganca/heatmap/__init__.py
-file(GENERATE OUTPUT ${PYTHON_PROJECT_DIR}/helper/__init__.py CONTENT "")     # build/python/ganca/helper/__init__.py
-file(GENERATE OUTPUT ${PYTHON_PROJECT_DIR}/aoihit/__init__.py CONTENT "")     # build/python/ganca/aoihit/__init__.py
-# file(GENERATE OUTPUT ${PYTHON_PROJECT_DIR}/bar/__init__.py CONTENT "")
-# file(GENERATE OUTPUT ${PYTHON_PROJECT_DIR}/foobar/__init__.py CONTENT "")
+file(GENERATE OUTPUT ${PYTHON_PROJECT_DIR}/helper/__init__.py CONTENT "")  # build/python/ganca/helper/__init__.py
+file(GENERATE OUTPUT ${PYTHON_PROJECT_DIR}/aoihit/__init__.py CONTENT "")  # build/python/ganca/aoihit/__init__.py
+file(GENERATE OUTPUT ${PYTHON_PROJECT_DIR}/fixationfilter/__init__.py CONTENT "") # build/python/ganca/fixationfilter/__init__.py
 
 # setup.py.in contains cmake variable e.g. @PYTHON_PROJECT@ and
 # generator expression e.g. $<TARGET_FILE_NAME:pyFoo>
@@ -152,9 +150,6 @@ add_custom_command(
   COMMAND ${CMAKE_COMMAND} -E make_directory ${PYTHON_PROJECT}/.libs # build/python/ganca/.libs
   # Don't need to copy static lib on Windows.
   # Copy if shared lib
-  COMMAND ${CMAKE_COMMAND} -E $<IF:$<STREQUAL:$<TARGET_PROPERTY:Foo,TYPE>,SHARED_LIBRARY>,copy,true>
-  $<$<STREQUAL:$<TARGET_PROPERTY:Foo,TYPE>,SHARED_LIBRARY>:$<TARGET_SONAME_FILE:Foo>>
-  ${PYTHON_PROJECT}/.libs
   COMMAND ${CMAKE_COMMAND} -E $<IF:$<STREQUAL:$<TARGET_PROPERTY:Heatmap,TYPE>,SHARED_LIBRARY>,copy,true>
   $<$<STREQUAL:$<TARGET_PROPERTY:Heatmap,TYPE>,SHARED_LIBRARY>:$<TARGET_SONAME_FILE:Heatmap>>
   ${PYTHON_PROJECT}/.libs
@@ -164,18 +159,15 @@ add_custom_command(
   COMMAND ${CMAKE_COMMAND} -E $<IF:$<STREQUAL:$<TARGET_PROPERTY:AOIHit,TYPE>,SHARED_LIBRARY>,copy,true>
   $<$<STREQUAL:$<TARGET_PROPERTY:AOIHit,TYPE>,SHARED_LIBRARY>:$<TARGET_SONAME_FILE:AOIHit>>
   ${PYTHON_PROJECT}/.libs
-#   COMMAND ${CMAKE_COMMAND} -E $<IF:$<STREQUAL:$<TARGET_PROPERTY:Bar,TYPE>,SHARED_LIBRARY>,copy,true>
-#   $<$<STREQUAL:$<TARGET_PROPERTY:Bar,TYPE>,SHARED_LIBRARY>:$<TARGET_SONAME_FILE:Bar>>
-#   ${PYTHON_PROJECT}/.libs
-#   COMMAND ${CMAKE_COMMAND} -E $<IF:$<STREQUAL:$<TARGET_PROPERTY:FooBar,TYPE>,SHARED_LIBRARY>,copy,true>
-#   $<$<STREQUAL:$<TARGET_PROPERTY:FooBar,TYPE>,SHARED_LIBRARY>:$<TARGET_SONAME_FILE:FooBar>>
-#   ${PYTHON_PROJECT}/.libs
-  COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:pyFoo> ${PYTHON_PROJECT}/foo # build/python/ganca/foo
+  COMMAND ${CMAKE_COMMAND} -E $<IF:$<STREQUAL:$<TARGET_PROPERTY:FixationFilter,TYPE>,SHARED_LIBRARY>,copy,true>
+  $<$<STREQUAL:$<TARGET_PROPERTY:FixationFilter,TYPE>,SHARED_LIBRARY>:$<TARGET_SONAME_FILE:FixationFilter>>
+  ${PYTHON_PROJECT}/.libs
+
   COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:pyHeatmap> ${PYTHON_PROJECT}/heatmap # build/python/ganca/heatmap
   COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:pyHelper> ${PYTHON_PROJECT}/helper # build/python/ganca/helper
   COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:pyAOIHit> ${PYTHON_PROJECT}/aoihit # build/python/ganca/aoihit
-#   COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:pyBar> ${PYTHON_PROJECT}/bar
-#   COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:pyFooBar> ${PYTHON_PROJECT}/foobar
+  COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:pyFixationFilter> ${PYTHON_PROJECT}/fixationfilter # build/python/ganca/fixationfilter
+
   #COMMAND ${Python3_EXECUTABLE} setup.py bdist_egg bdist_wheel
   COMMAND ${Python3_EXECUTABLE} setup.py bdist_wheel # run setup.py with argument bdist_wheel
   COMMAND ${CMAKE_COMMAND} -E touch ${PROJECT_BINARY_DIR}/python/dist/timestamp
@@ -183,13 +175,10 @@ add_custom_command(
     python/setup.py.in
   DEPENDS
     python/setup.py
-    # ${PROJECT_NAMESPACE}::Foo # FooBar depends on PUBLIC Foo
-    ${PROJECT_NAMESPACE}::pyFoo
     ${PROJECT_NAMESPACE}::pyHeatmap
     ${PROJECT_NAMESPACE}::pyHelper
     ${PROJECT_NAMESPACE}::pyAOIHit
-    # ${PROJECT_NAMESPACE}::pyBar
-    # ${PROJECT_NAMESPACE}::pyFooBar
+    ${PROJECT_NAMESPACE}::pyFixationFilter
   BYPRODUCTS
     python/${PYTHON_PROJECT}
     python/${PYTHON_PROJECT}.egg-info

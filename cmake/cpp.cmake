@@ -79,11 +79,10 @@ function(add_cpp_test FILE_NAME)
   target_compile_features(${TEST_NAME} PRIVATE cxx_std_17) # set C++ standard features
   target_link_libraries(${TEST_NAME} PRIVATE
     Catch2 Catch2WithMain
-    ${PROJECT_NAMESPACE}::Foo
     ${PROJECT_NAMESPACE}::Heatmap
     ${PROJECT_NAMESPACE}::Helper
     ${PROJECT_NAMESPACE}::AOIHit
-    # ${PROJECT_NAMESPACE}::FooBar
+    ${PROJECT_NAMESPACE}::FixationFilter
 	)
 
   if(BUILD_TESTING)
@@ -93,10 +92,10 @@ function(add_cpp_test FILE_NAME)
 endfunction()
 
 # go thruogh source directories
-add_subdirectory(Foo)
 add_subdirectory(Heatmap)
 add_subdirectory(Helper)
 add_subdirectory(AOIHit)
+add_subdirectory(FixationFilter)
 
 # Install
 install(EXPORT ${PROJECT_NAME}Targets

@@ -112,7 +112,7 @@ include(CTest)
 find_package(Git REQUIRED)
 
 # openCV(local install)
-include(opencv) # /cmake/opencv.cmake
+# include(opencv) # /cmake/opencv.cmake
 
 # csv-parser(git submodule)
 include(csvparser) # /cmake/csvparser.cmake
@@ -134,16 +134,3 @@ include(python)
 
 # copy test data
 file(COPY ${PROJECT_SOURCE_DIR}/test_data DESTINATION ${PROJECT_BINARY_DIR})
-
-# # debug
-# message("dir from root")
-# message("project src dir : ${PROJECT_SOURCE_DIR}")
-# message("project bin dir : ${PROJECT_BINARY_DIR}")
-# message("cmake src dir   : ${CMAKE_SOURCE_DIR}")
-# message("cmake bin dir   : ${CMAKE_BINARY_DIR}")
-# message("cur src dir     : ${CMAKE_CURRENT_SOURCE_DIR}")
-# message("cur bin dir     : ${CMAKE_CURRENT_BINARY_DIR}")
-# message("cmake lib output dir : ${CMAKE_LIBRARY_OUTPUT_DIRECTORY}")
-# message("cmake arc output dir : ${CMAKE_ARCHIVE_OUTPUT_DIRECTORY}")
-# message("cmake run output dir : ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}")
-# # message("build types     : ${CMAKE_CONFIGURATION_TYPES}") # empty on single-config generator
