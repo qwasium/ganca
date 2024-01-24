@@ -7,9 +7,8 @@ if (POLICY CMP0122)
   cmake_policy(SET CMP0122 NEW)
 endif()
 
-project(ganca VERSION 0.1 LANGUAGES CXX)
+project(ganca VERSION 0.0 LANGUAGES CXX)
 set(PROJECT_NAMESPACE ganca) # user defined
-# set(PROJECT_NAMESPACE cs)
 
 # temporarily set to C++ 17
 # might change in future development

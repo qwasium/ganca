@@ -4,73 +4,101 @@
 # include <cmath>
 
 namespace fixationfilter {
+/*
+*	Identification by Velocity Thresholding (IVT) filter for single eye.
+*
+*   Attributes
+*   ----------
+*   timestamp : vector<double>
+*       Timestamps of the gaze data, UNIX time, can be eyetracker timestamp or system timestamp
+*   validityIn : vector<bool>
+*       Validity of the gaze data, true for valid, false for invalid
+*   gazeVectorX : vector<double>
+*       Gaze vector x
+*   gazeVectorY : vector<double>
+*       Gaze vector y
+*   gazeVectorZ : vector<double>
+*       Gaze vector z
+*   velocityThreshold : double
+*       Threshold for velocity, in degrees per second
+*       Tobii I-VT sets 30 deg/s for screen based eye tracker, 100 deg/s for head mounted eye tracker
+*	isFixation : vector<bool>
+*		True for fixation, false for saccade or invalid
+*   validityOut : vector<bool>
+*       Validity of the fixation, true for valid, false for invalid
+*   velocity : vector<double>
+*       Velocity of the gaze data, in degrees per second
+*   timestampOut : vector<double>
+*       Timestamps of the fixations, depends on timestampIn
+*/
 
-std::vector<std::vector<bool>> IVTFilter(
-	const std::vector<double>& timestamp,
-	const std::vector<bool>  & validityIn,
-	const std::vector<double>& gazeX,
-	const std::vector<double>& gazeY,
-	const int& winX,
-	const int& winY,
-	const double& velocityThreshold) {
+// constructor
+FixationFilter::FixationFilter(
+	const std::vector<double>& timestampInInit,
+	const std::vector<bool>  & validityInInit,
+	const std::vector<double>& gazeVectorXInit,
+	const std::vector<double>& gazeVectorYInit,
+	const std::vector<double>& gazeVectorZInit
+) : timestampIn(timestampInInit),
+	validityIn(validityInInit),
+	gazeVectorX(gazeVectorXInit),
+	gazeVectorY(gazeVectorYInit),
+	gazeVectorZ(gazeVectorZInit){}
+
+// IVT filter
+void FixationFilter::IVTFilter(
+	double velocityThresholdIn
+){
 	/*
-	*	Identification by Velocity Thresholding (IVT) filter for single eye.
-	*
-	*   Parameters
-	*   ----------
-	*   timestamp : vector<double>
-	*       Timestamps of the gaze data, UNIX time, can be eyetracker timestamp or system timestamp
-	*   validityIn : vector<bool>
-	*       Validity of the gaze data, true for valid, false for invalid
-	*   gazeX : vector<double>
-	*       Gaze x position, in pixels, top left of screen is (0,0)
-	*   gazeY : vector<double>
-	*       Gaze y position, in pixels, top left of screen is (0,0)
-	*   winX : int
-	*       Window size in x direction, in pixels
-	*   winY : int
-	*       Window size in y direction, in pixels
-	*   dist : int
-	*       distance of eye to screen, in cm
-	*   velocityThreshold : double
-	*       Threshold for velocity, in pixels per second
-	*
-	*   Returns
-	*   -------
-	*   vector<isFixation, validityOut>
-	*	isFixation : vector<bool>
-	*		True for fixation, false for saccade or invalid
-	*   validityOut : vector<bool>
-	*       Validity of the fixation, true for valid, false for invalid
+	Identification by Velocity Thresholding (IVT) filter for single eye.
+
+	Parameters
+	----------
+	velocityThresholdIn : double
+		Threshold for velocity, in pixels per second.
+		Sets attribute velocityThreshold.
+
+	Notes
+	-----
+	Output will be stored in attributes isFixation and validityOut.
+
 	*/
 
-	// Initialize output
-	std::vector<bool> isFixation(timestamp.size(), false);
-	std::vector<bool> validityOut(timestamp.size(), false);
-	double velocity;
+	// initialize
+	velocityThreshold = velocityThresholdIn;
+	isFixation.resize(timestampIn.size()-1, false);
+	validityOut.resize(timestampIn.size()-1, false);
+	timestampOut.resize(timestampIn.size()-1, 0);
+	velocity.resize(timestampIn.size()-1, 0);
 
 	// iterate through all samples
-	for (int i = 1; i < timestamp.size(); i++) { // start from 1, because we need to compare with previous sample
+	// output index [i] is between input index [i] and [i+1].
+	// order in time: timestampIn[i] -> timestampOut[i] -> timestampIn[i+1]
+	for (size_t i = 0; i < timestampIn.size()-1; i++) { // output is shorter than input
+
+		timestampOut[i] = ((timestampIn[i] + timestampIn[i + 1]) / 2);
+
 		// check if sample is valid
-		if (!validityIn[i - 1] || !validityIn[i]) {
+		if (!validityIn[i] || !validityIn[i + 1]) {
 			// validityOut and isFixation are already initialized as false
 			continue;
 		}
 
-		// calculate velocity
-		velocity = sqrt(
-			pow(gazeX[i] - gazeX[i - 1], 2) + pow(gazeY[i] - gazeY[i - 1], 2))
-			 / (timestamp[i] - timestamp[i - 1]);
+		// calculate velocity using dot product
+		// angle = arccos( x_i * x_{i-1} + y_i * y_{i-1} + z_i * z_{i-1} / (|vector_i| + |vector_i-1|))
+		// time  = timestamp_i - timestamp_{i-1}
+		// velocity = angle / time
+		velocity[i] = acos(
+			(gazeVectorX[i] * gazeVectorX[i + 1] + gazeVectorY[i] * gazeVectorY[i + 1] + gazeVectorZ[i] * gazeVectorZ[i + 1])
+			 / (sqrt(gazeVectorX[i] * gazeVectorX[i] + gazeVectorY[i] * gazeVectorY[i] + gazeVectorZ[i] * gazeVectorZ[i])
+			 * sqrt(gazeVectorX[i + 1] * gazeVectorX[i + 1] + gazeVectorY[i + 1] * gazeVectorY[i + 1] + gazeVectorZ[i + 1] * gazeVectorZ[i + 1]))
+		) / (timestampIn[i + 1] - timestampIn[i]);
 
 		// check if velocity is below threshold
-		if (velocity < velocityThreshold) {
+		if (velocity[i] < velocityThreshold) {
 			isFixation[i] = true;
 			validityOut[i] = true;
 		}
 	}
-
-    // Return the results as a vector
-    return {isFixation, validityOut};
-
-} // function IVTFilter
+};
 } // namespace fixationfilter

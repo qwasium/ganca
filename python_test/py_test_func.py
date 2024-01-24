@@ -21,6 +21,19 @@ class pyTestFunc:
 		return True
 
 	@staticmethod
+	def test_vector(vec_one, vec_two):
+		'''compare two vector and return True if they are equal
+		'''
+		if len(vec_one) != len(vec_two):
+			warnings.warn("Size of vector is not equal")
+			return False
+		for i, vec_one_i in enumerate(vec_one):
+			if not math.isclose(vec_one_i, vec_two[i]): # default rel_tol=1e-09, abs_tol=0.0
+				warnings.warn(f"Value is not equal at index [{i}], {vec_one_i} != {vec_two[i]}")
+				return False
+		return True
+
+	@staticmethod
 	def heatmap_gauss(fix_x, fix_y, fix_dur, win_x, win_y, sigma_factor=1):
 		'''ganca::heatmap::heatmapGauss()
 		'''
@@ -59,3 +72,61 @@ class pyTestFunc:
 			is_inside[i] = True if aoi_mask[int(fix_x[i])][int(fix_y[i])] == 1 else False
 
 		return is_inside
+
+
+class pyTestFixationFilter:
+	'''ganca::fixationfilter::FixationFilter
+	'''
+	def __init__(self,
+			time_stamp_in,
+			validity_in,
+			gaze_vector_x,
+			gaze_vector_y,
+			gaze_vector_z,
+		):
+		'''ganca::fixationfilter::FixationFilter::FixationFilter()
+		'''
+		# input
+		self.time_stamp_in = time_stamp_in
+		self.validity_in = validity_in
+		self.gaze_vector_x = gaze_vector_x
+		self.gaze_vector_y = gaze_vector_y
+		self.gaze_vector_z = gaze_vector_z
+
+		# output
+		self.is_fixation = []
+		self.validity_out = []
+		self.time_stamp_out = []
+		self.velocity = []
+
+		# parameters
+		self.velocity_threshold = None
+
+
+	def IVT_filter(self, velocity_threshold):
+		'''ganca::fixationfilter::FixationFilter::IVT_filter()
+		'''
+		self.velocity_threshold = velocity_threshold
+		self.is_fixation = [False for _ in range(len(self.time_stamp_in)-1)]
+		self.validity_out = [False for _ in range(len(self.time_stamp_in)-1)]
+		self.time_stamp_out = [0 for _ in range(len(self.time_stamp_in)-1)]
+		self.velocity = [0 for _ in range(len(self.time_stamp_in)-1)]
+
+		for i, _ in enumerate(self.time_stamp_in[:-1]):
+			self.time_stamp_out[i] = (self.time_stamp_in[i] + self.time_stamp_in[i + 1]) / 2
+
+			if not self.validity_in[i] or not self.validity_in[i + 1]:
+				continue
+
+			self.velocity[i] = math.acos((
+					self.gaze_vector_x[i] * self.gaze_vector_x[i+1]
+					+ self.gaze_vector_y[i] * self.gaze_vector_y[i+1]
+					+ self.gaze_vector_z[i] * self.gaze_vector_z[i+1]
+				) / (
+					math.sqrt(self.gaze_vector_x[i]**2 + self.gaze_vector_y[i]**2 + self.gaze_vector_z[i]**2)
+					* math.sqrt(self.gaze_vector_x[i+1]**2 + self.gaze_vector_y[i+1]**2 + self.gaze_vector_z[i+1]**2)
+				) / (self.time_stamp_in[i+1] - self.time_stamp_in[i]))
+
+			if self.velocity[i] < self.velocity_threshold:
+				self.is_fixation[i] = True
+				self.validity_out[i] = True
